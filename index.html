@@ -54,8 +54,25 @@
         }
       };
 
+      function subtractVector(v, w) {
+        return { x: v.x - w.x, y: v.y - w.y }
+      }
+
       function addVector(v, w) {
         return { x: v.x + w.x, y: v.y + w.y }
+      }
+
+      function scaleVector(v, scale) {
+        return { x: v.x * scale, y: v.y * scale };
+      }
+
+      function unitVector(v) {
+        const length = Math.sqrt(lengthSquared(v));
+        return scaleVector(v, 1/length);
+      }
+
+      function lengthSquared(v) {
+        return v.x * v.x + v.y * v.y
       }
 
       function updatePositions(particles) {
@@ -65,8 +82,16 @@
       };
 
       function updateVelocities(particles) {
+        scalar = 10
         particles.forEach((p) => {
-          p.velocity = addVector(p.velocity, { x: Math.random() - 0.5, y: Math.random() - 0.5 })
+          particles.forEach((q) => {
+            if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
+              diff = subtractVector(p.position, q.position);
+              force = scalar / lengthSquared(diff);
+              change = scaleVector(unitVector(diff), force);
+              p.velocity = addVector(p.velocity, change)
+            }
+          })
         })
       };
     </script>
