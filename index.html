@@ -92,6 +92,8 @@
 
       function updateVelocities(particles) {
         scalar = 10;
+        friction = 0.05;
+
         particles.forEach((p) => {
           particles.forEach((q) => {
             if (
@@ -111,6 +113,8 @@
           if (isOutOfVerticalBounds(p)) {
             p.velocity.y = Math.random() - 0.5;
           }
+
+          p.velocity = scaleVector(p.velocity, 1 - friction);
         });
       }
     </script>
