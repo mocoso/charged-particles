@@ -4,6 +4,7 @@
     <script type="application/javascript">
       const height = 300;
       const width = 300;
+      const boundary = 25;
 
       function createParticles(n) {
         const particles = [];
@@ -85,11 +86,17 @@
       }
 
       function isOutOfHorizontalBounds(particle) {
-        return particle.position.x < 0 || particle.position.x > width;
+        return (
+          particle.position.x < -boundary ||
+          particle.position.x > width + boundary
+        );
       }
 
       function isOutOfVerticalBounds(particle) {
-        return particle.position.y < 0 || particle.position.y > height;
+        return (
+          particle.position.y < -boundary ||
+          particle.position.y > height + boundary
+        );
       }
 
       function updateVelocities(particles) {
