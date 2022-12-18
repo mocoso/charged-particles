@@ -23,13 +23,15 @@
       }
 
       async function start() {
-        const particles = createParticles(50);
+        const particles = createParticles(300);
 
-        for (var i = 0; i < 1000; i++) {
-          draw(particles);
+        for (var i = 0; i < 10000; i++) {
+          if (i % 10 == 0) {
+            draw(particles);
+          }
           updatePositions(particles);
           updateVelocities(particles);
-          await sleep(50);
+          await sleep(1);
         }
       }
 
@@ -91,8 +93,8 @@
       }
 
       function updateVelocities(particles) {
-        scalar = 10;
-        friction = 0.05;
+        scalar = 5;
+        friction = 0.1;
 
         particles.forEach((p) => {
           particles.forEach((q) => {
