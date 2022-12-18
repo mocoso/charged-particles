@@ -2,25 +2,48 @@
 <html>
   <head>
     <script type="application/javascript">
-      function draw() {
+      const height = 300
+      const width = 300
+
+      function createPoints(n) {
+        const points = []
+
+        for (var i = 0; i < n; i++) {
+          points.push({ x: Math.random() * width, y: Math.random() * height });
+        }
+
+        return points;
+      };
+
+      function start() {
+        const points = createPoints(50);
+        draw(points);
+      }
+
+      function draw(points) {
         const canvas = document.getElementById("canvas");
+
         if (canvas.getContext) {
           const ctx = canvas.getContext("2d");
-
           ctx.fillStyle = "rgb(200, 0, 0)";
-          ctx.fillRect(10, 10, 50, 50);
+          const startAngle = 0
+          const endAngle = Math.PI * 2
 
-          ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-          ctx.fillRect(30, 30, 50, 50);
+          points.forEach((p) => {
+            console.log(p)
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 4, startAngle, endAngle);
+            ctx.fill();
+          })
         }
-      }
-  </script>
+      };
+    </script>
   </head>
   <body>
     <h1>Charge</h1>
     <canvas id="canvas" height="300px" width="300px"></canvas>
     <script type="application/javascript">
-      draw();
+      start();
   </script>
   </body>
 </html>
