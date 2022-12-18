@@ -5,22 +5,37 @@
       const height = 300
       const width = 300
 
-      function createPoints(n) {
-        const points = []
+      function createParticles(n) {
+        const particles = []
 
         for (var i = 0; i < n; i++) {
-          points.push({ x: Math.random() * width, y: Math.random() * height });
+          particles.push(
+            {
+              position: { x: Math.random() * width, y: Math.random() * height },
+              velocity: { x: 0, y: 0 }
+            }
+          );
         }
 
-        return points;
+        return particles;
       };
 
-      function start() {
-        const points = createPoints(50);
-        draw(points);
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
       }
 
-      function draw(points) {
+      async function start() {
+        const particles = createParticles(50);
+
+        for (var i = 0; i < 1000; i++) {
+          draw(particles);
+          updatePositions(particles);
+          updateVelocities(particles);
+          await sleep(50)
+        }
+      }
+
+      function draw(particles) {
         const canvas = document.getElementById("canvas");
 
         if (canvas.getContext) {
@@ -29,13 +44,30 @@
           const startAngle = 0
           const endAngle = Math.PI * 2
 
-          points.forEach((p) => {
-            console.log(p)
+          ctx.clearRect(0, 0, width, height);
+
+          particles.forEach((p) => {
             ctx.beginPath();
-            ctx.arc(p.x, p.y, 4, startAngle, endAngle);
+            ctx.arc(p.position.x, p.position.y, 4, startAngle, endAngle);
             ctx.fill();
           })
         }
+      };
+
+      function addVector(v, w) {
+        return { x: v.x + w.x, y: v.y + w.y }
+      }
+
+      function updatePositions(particles) {
+        particles.forEach((p) => {
+          p.position = addVector(p.position, p.velocity)
+        })
+      };
+
+      function updateVelocities(particles) {
+        particles.forEach((p) => {
+          p.velocity = addVector(p.velocity, { x: Math.random() - 0.5, y: Math.random() - 0.5 })
+        })
       };
     </script>
   </head>
@@ -44,6 +76,6 @@
     <canvas id="canvas" height="300px" width="300px"></canvas>
     <script type="application/javascript">
       start();
-  </script>
+    </script>
   </body>
 </html>
