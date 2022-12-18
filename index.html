@@ -67,6 +67,9 @@
       }
 
       function unitVector(v) {
+        if (v.x == 0 && v.y == 0) {
+          throw "Can't make unit vector from zero";
+        }
         const length = Math.sqrt(lengthSquared(v));
         return scaleVector(v, 1/length);
       }
