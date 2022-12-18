@@ -24,7 +24,7 @@
       }
 
       async function start() {
-        const particles = createParticles(300);
+        const particles = createParticles(1000);
 
         for (var i = 0; i < 10000; i++) {
           if (i % 10 == 0) {
@@ -100,7 +100,7 @@
       }
 
       function updateVelocities(particles) {
-        scalar = 5;
+        scalar = 3;
         friction = 0.1;
 
         particles.forEach((p) => {
