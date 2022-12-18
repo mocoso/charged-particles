@@ -2,26 +2,24 @@
 <html>
   <head>
     <script type="application/javascript">
-      const height = 300
-      const width = 300
+      const height = 300;
+      const width = 300;
 
       function createParticles(n) {
-        const particles = []
+        const particles = [];
 
         for (var i = 0; i < n; i++) {
-          particles.push(
-            {
-              position: { x: Math.random() * width, y: Math.random() * height },
-              velocity: { x: 0, y: 0 }
-            }
-          );
+          particles.push({
+            position: { x: Math.random() * width, y: Math.random() * height },
+            velocity: { x: 0, y: 0 },
+          });
         }
 
         return particles;
-      };
+      }
 
       function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
+        return new Promise((resolve) => setTimeout(resolve, ms));
       }
 
       async function start() {
@@ -31,7 +29,7 @@
           draw(particles);
           updatePositions(particles);
           updateVelocities(particles);
-          await sleep(50)
+          await sleep(50);
         }
       }
 
@@ -41,8 +39,8 @@
         if (canvas.getContext) {
           const ctx = canvas.getContext("2d");
           ctx.fillStyle = "rgb(200, 0, 0)";
-          const startAngle = 0
-          const endAngle = Math.PI * 2
+          const startAngle = 0;
+          const endAngle = Math.PI * 2;
 
           ctx.clearRect(0, 0, width, height);
 
@@ -50,16 +48,16 @@
             ctx.beginPath();
             ctx.arc(p.position.x, p.position.y, 4, startAngle, endAngle);
             ctx.fill();
-          })
+          });
         }
-      };
+      }
 
       function subtractVector(v, w) {
-        return { x: v.x - w.x, y: v.y - w.y }
+        return { x: v.x - w.x, y: v.y - w.y };
       }
 
       function addVector(v, w) {
-        return { x: v.x + w.x, y: v.y + w.y }
+        return { x: v.x + w.x, y: v.y + w.y };
       }
 
       function scaleVector(v, scale) {
@@ -71,32 +69,34 @@
           throw "Can't make unit vector from zero";
         }
         const length = Math.sqrt(lengthSquared(v));
-        return scaleVector(v, 1/length);
+        return scaleVector(v, 1 / length);
       }
 
       function lengthSquared(v) {
-        return v.x * v.x + v.y * v.y
+        return v.x * v.x + v.y * v.y;
       }
 
       function updatePositions(particles) {
         particles.forEach((p) => {
-          p.position = addVector(p.position, p.velocity)
-        })
-      };
+          p.position = addVector(p.position, p.velocity);
+        });
+      }
 
       function updateVelocities(particles) {
-        scalar = 10
+        scalar = 10;
         particles.forEach((p) => {
           particles.forEach((q) => {
-            if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
+            if (
+              !(p.position.x == q.position.x && p.position.y == q.position.y)
+            ) {
               diff = subtractVector(p.position, q.position);
               force = scalar / lengthSquared(diff);
               change = scaleVector(unitVector(diff), force);
-              p.velocity = addVector(p.velocity, change)
+              p.velocity = addVector(p.velocity, change);
             }
-          })
-        })
-      };
+          });
+        });
+      }
     </script>
   </head>
   <body>
