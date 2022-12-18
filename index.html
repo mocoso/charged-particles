@@ -82,6 +82,14 @@
         });
       }
 
+      function isOutOfHorizontalBounds(particle) {
+        return particle.position.x < 0 || particle.position.x > width;
+      }
+
+      function isOutOfVerticalBounds(particle) {
+        return particle.position.y < 0 || particle.position.y > height;
+      }
+
       function updateVelocities(particles) {
         scalar = 10;
         particles.forEach((p) => {
@@ -95,6 +103,14 @@
               p.velocity = addVector(p.velocity, change);
             }
           });
+
+          if (isOutOfHorizontalBounds(p)) {
+            p.velocity.x = Math.random() - 0.5;
+          }
+
+          if (isOutOfVerticalBounds(p)) {
+            p.velocity.y = Math.random() - 0.5;
+          }
         });
       }
     </script>
