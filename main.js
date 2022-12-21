@@ -20,10 +20,10 @@ function sleep(ms) {
 }
 
 async function start() {
-  const particles = createParticles(1000);
+  const particles = createParticles(4000);
 
   for (var i = 0; i < 10000; i++) {
-    if (i % 10 == 0) {
+    if (i % 3 == 0) {
       draw(particles);
     }
     updatePositions(particles);
@@ -45,7 +45,7 @@ function draw(particles) {
 
     particles.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.position.x, p.position.y, 4, startAngle, endAngle);
+      ctx.arc(p.position.x, p.position.y, 2, startAngle, endAngle);
       ctx.fill();
     });
   }
