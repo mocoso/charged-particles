@@ -25,11 +25,25 @@ async function start() {
   for (var i = 0; i < 10000; i++) {
     if (i % 3 == 0) {
       draw(particles);
+      if (
+        i > 100 &&
+        hasStopped(
+          particles.filter((p) => {
+            !isOutOfBounds(p);
+          }),
+          0.2
+        )
+      ) {
+        console.log("Has stopped");
+        break;
+      }
     }
     updatePositions(particles);
     updateVelocities(particles);
     await sleep(1);
   }
+
+  console.log("The end");
 }
 
 function draw(particles) {
@@ -81,6 +95,10 @@ function updatePositions(particles) {
   });
 }
 
+function isOutOfBounds(particle) {
+  return isOutOfHorizontalBounds(particle) || isOutOfVerticalBounds(particle);
+}
+
 function isOutOfHorizontalBounds(particle) {
   return (
     particle.position.x < -boundary || particle.position.x > width + boundary
@@ -91,6 +109,13 @@ function isOutOfVerticalBounds(particle) {
   return (
     particle.position.y < -boundary || particle.position.y > height + boundary
   );
+}
+
+function hasStopped(particles, maxSpeed) {
+  maxSpeedSquared = maxSpeed * maxSpeed;
+  return particles.every((p) => {
+    return lengthSquared(p.velocity) < maxSpeedSquared;
+  });
 }
 
 function closestParticles(particle, particles, range) {
