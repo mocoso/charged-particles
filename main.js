@@ -1,5 +1,5 @@
-const height = 300;
-const width = 300;
+const height = 600;
+const width = 600;
 const boundary = 25;
 
 function createParticles(n) {
@@ -59,7 +59,7 @@ function draw(particles) {
 
     particles.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.position.x, p.position.y, 2, startAngle, endAngle);
+      ctx.arc(p.position.x, p.position.y, 4, startAngle, endAngle);
       ctx.fill();
     });
   }
@@ -129,8 +129,8 @@ function closestParticles(particle, particles, range) {
 }
 
 function updateVelocities(particles) {
-  scalar = 8;
-  friction = 0.15;
+  scalar = 32;
+  friction = 0.1;
 
   particles.forEach((p) => {
     closestParticles(p, particles, 30).forEach((q) => {
