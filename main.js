@@ -95,7 +95,7 @@ function isOutOfVerticalBounds(particle) {
 
 function updateVelocities(particles) {
   scalar = 3;
-  friction = 0.1;
+  friction = 0.15;
 
   particles.forEach((p) => {
     particles.forEach((q) => {
