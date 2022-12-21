@@ -7,7 +7,10 @@ function createParticles(n) {
 
   for (var i = 0; i < n; i++) {
     particles.push({
-      position: { x: Math.random() * width, y: Math.random() * height },
+      position: {
+        x: Math.random() * (width + boundary * 2) - boundary,
+        y: Math.random() * (height + boundary * 2) - boundary,
+      },
       velocity: { x: 0, y: 0 },
     });
   }
