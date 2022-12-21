@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link href="style.css" rel="stylesheet">
-    <script src="main.js"></script>
+    <link href="/style.css" rel="stylesheet">
+    <script src="/main.js"></script>
   </head>
   <body>
-    <h1>Charged particles</h1>
+    <h1>Charged particle halftones</h1>
 
-    <p>Crude modelling of charged particles to irregularly fill a space.</p>
+    <p>Crude modelling of charged particles to generate half tones for an image</p>
 
     <canvas id="canvas" height="400px" width="600px"></canvas>
 
     <h2>Settings:</h2>
 
     <form method="GET" action="">
+      <div class="input">
+        <img src="/simon.png" alt="A picture of Simon with a moustache and wild hair"/>
+        <label>Original image</label>
+      </div>
+
       <div class="input">
         <input type="range" id="number-of-particles" name="number-of-particles"
               min="100" max="10000" step="100">
@@ -22,7 +27,7 @@
 
       <div class="input">
         <input type="range" id="friction" name="friction"
-              min="-2.5" max="-0.1" step="0.1">
+              min="-1.5" max="-0.05" step="0.1">
         <label for="friction">Friction</label>
       </div>
 
@@ -42,10 +47,10 @@
 
       const params = new URLSearchParams(window.location.search);
 
-      const numberOfParticles = params.get("number-of-particles") || 2000
+      const numberOfParticles = params.get("number-of-particles") || 7500
       document.getElementById("number-of-particles").value = numberOfParticles;
 
-      const friction = params.get("friction") || -0.9
+      const friction = params.get("friction") || -0.2
       document.getElementById("friction").value = friction;
 
       const forceScalar = params.get("force-scalar") || 32
@@ -53,6 +58,7 @@
 
       ChargedParticles.start({
         canvas: canvas,
+        pngSrc: "/simon.png",
         numberOfParticles: numberOfParticles,
         particleRadius: 3.5,
         frictionCoefficient: 10 ** friction,

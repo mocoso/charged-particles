@@ -1,9 +1,13 @@
 {
   "scripts": {
-    "build": "esbuild main.js --outfile=public/main.js",
-    "serve": "esbuild main.js --outfile=public/main.js --servedir=public"
+    "build": "esbuild main.js --outfile=public/main.js --bundle",
+    "serve": "esbuild main.js --outfile=public/main.js --bundle --servedir=public"
   },
   "devDependencies": {
     "esbuild": "^0.16.11"
+  },
+  "dependencies": {
+    "buffer": "^6.0.3",
+    "pngjs": "^6.0.0"
   }
 }

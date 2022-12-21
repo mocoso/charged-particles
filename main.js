@@ -1,3 +1,6 @@
+import { PNG } from "pngjs/browser";
+import { Buffer } from "buffer";
+
 ChargedParticles = (() => {
   function createParticles(n, width, height, rangeOfForce) {
     const particles = [];
@@ -25,6 +28,7 @@ ChargedParticles = (() => {
 
   const start = async function start({
     canvas,
+    pngSrc,
     numberOfParticles,
     particleRadius,
     frictionCoefficient,
@@ -45,7 +49,12 @@ ChargedParticles = (() => {
       rangeOfForce
     );
 
-    for (var i = 0; i < 10000; i++) {
+    const greyScalars =
+      pngSrc == undefined
+        ? undefined
+        : await greyScalarsForPngSource(pngSrc, width, height);
+
+    for (var i = 0; i < 1000; i++) {
       if (
         i > 100 &&
         hasNearlyStopped(particles, 0.25, width, height, rangeOfForce)
@@ -56,6 +65,7 @@ ChargedParticles = (() => {
 
       tick({
         particles: particles,
+        greyScalars: greyScalars,
         width: width,
         height: height,
         particleRadius: particleRadius,
@@ -70,8 +80,29 @@ ChargedParticles = (() => {
     console.log("The end");
   };
 
+  async function greyScalarsForPngSource(pngSrc, width, height) {
+    return new Promise(function (resolve, _) {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", pngSrc, true);
+      xhr.responseType = "arraybuffer";
+      xhr.onload = function (e) {
+        if (this.status == 200) {
+          const buf = Buffer.from(this.response);
+
+          const png = PNG.sync.read(buf, function (err, _) {
+            if (err) throw err;
+          });
+
+          resolve(greyScalarsForPng(png, width, height));
+        }
+      };
+      xhr.send();
+    });
+  }
+
   function tick({
     particles: particles,
+    greyScalars: greyScalars,
     width: width,
     height: height,
     particleRadius: particleRadius,
@@ -83,6 +114,7 @@ ChargedParticles = (() => {
     updatePositions(particles);
     updateVelocities({
       particles: particles,
+      greyScalars: greyScalars,
       width: width,
       height: height,
       particleRadius: particleRadius,
@@ -189,8 +221,36 @@ ChargedParticles = (() => {
     });
   }
 
+  function greyScaleForPixel(png, point) {
+    const index = (Math.round(point.x) + Math.round(point.y) * png.width) << 2;
+    return (png.data[index] + png.data[index + 1] + png.data[index + 2]) / 3;
+  }
+
+  function greyScalarsForPng(png, width, height) {
+    const greyScalars = [];
+    for (let x = 0; x < width; x++) {
+      for (let y = 0; y < height; y++) {
+        greyScalars[x] ||= [];
+        greyScalars[x][y] =
+          4 ** ((greyScaleForPixel(png, { x: x, y: y }) - 128) / 64);
+      }
+    }
+    return greyScalars;
+  }
+
+  function greyScalar(greyScalars, position, width, height) {
+    if (greyScalars == undefined) {
+      return 1;
+    } else {
+      return greyScalars[
+        Math.max(0, Math.min(width - 1, Math.round(position.x)))
+      ][Math.max(0, Math.min(height - 1, Math.round(position.y)))];
+    }
+  }
+
   function updateVelocities({
     particles,
+    greyScalars,
     width,
     height,
     particleRadius,
@@ -199,13 +259,14 @@ ChargedParticles = (() => {
     frictionCoefficient,
   }) {
     const minimumDistanceSquared = (particleRadius * 2) ** 2;
-
     particles.forEach((p) => {
       closestParticles(p, particles, rangeOfForce).forEach((q) => {
         if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
           diff = subtractVector(p.position, q.position);
+          pngScalar = greyScalar(greyScalars, q.position, width, height);
           force =
-            forceScalar / Math.max(lengthSquared(diff), minimumDistanceSquared);
+            (pngScalar * forceScalar) /
+            Math.max(lengthSquared(diff), minimumDistanceSquared);
           change = scaleVector(unitVector(diff), force);
           p.velocity = addVector(p.velocity, change);
         }

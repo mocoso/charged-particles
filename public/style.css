@@ -6,18 +6,28 @@ html {
   font-size: 1.25em;
 }
 
-h1,h2,h3,h4,h5,h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin: 1em 0 0.5em;
 }
 
-p,ul,ol,label,.input {
+p,
+ul,
+ol,
+label,
+.input {
   margin-bottom: 0.5em;
   color: #1d1d1d;
   font-family: sans-serif;
 }
 
-input[type="range"] {
-  width: 20em;
+input[type="range"],
+.input img {
+  width: 250px;
 }
 
 input[type="submit"] {
@@ -25,4 +35,3 @@ input[type="submit"] {
   height: 1.5em;
   font-size: 1.5em;
 }
-
