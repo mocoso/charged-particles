@@ -93,15 +93,25 @@ function isOutOfVerticalBounds(particle) {
   );
 }
 
+function closestParticles(particle, particles, range) {
+  rangeSquared = range * range;
+  return particles.filter((q) => {
+    return (
+      lengthSquared(subtractVector(particle.position, q.position)) <
+      rangeSquared
+    );
+  });
+}
+
 function updateVelocities(particles) {
-  scalar = 3;
+  scalar = 8;
   friction = 0.15;
 
   particles.forEach((p) => {
-    particles.forEach((q) => {
+    closestParticles(p, particles, 30).forEach((q) => {
       if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
         diff = subtractVector(p.position, q.position);
-        force = Math.min(scalar / lengthSquared(diff), 2);
+        force = Math.min(scalar / lengthSquared(diff), 3);
         change = scaleVector(unitVector(diff), force);
         p.velocity = addVector(p.velocity, change);
       }
