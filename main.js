@@ -1,6 +1,6 @@
 const height = 600;
 const width = 600;
-const boundary = 25;
+const boundary = 30;
 
 function createParticles(n) {
   const particles = [];
