@@ -101,7 +101,7 @@ function updateVelocities(particles) {
     particles.forEach((q) => {
       if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
         diff = subtractVector(p.position, q.position);
-        force = scalar / lengthSquared(diff);
+        force = Math.min(scalar / lengthSquared(diff), 2);
         change = scaleVector(unitVector(diff), force);
         p.velocity = addVector(p.velocity, change);
       }
