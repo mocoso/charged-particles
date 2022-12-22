@@ -25,6 +25,7 @@ function calculateRangeOfForce(numberOfParticles, width, height) {
 async function start({
   canvas,
   numberOfParticles,
+  particleRadius,
   frictionCoefficient,
   forceScalar,
 }) {
@@ -41,7 +42,7 @@ async function start({
 
   for (var i = 0; i < 10000; i++) {
     if (i % 3 == 0) {
-      draw(canvas, width, height, particles);
+      draw(canvas, width, height, particles, particleRadius);
       if (
         i > 100 &&
         hasStopped(
@@ -56,21 +57,22 @@ async function start({
       }
     }
     updatePositions(particles);
-    updateVelocities(
-      particles,
-      width,
-      height,
-      rangeOfForce,
-      forceScalar,
-      frictionCoefficient
-    );
+    updateVelocities({
+      particles: particles,
+      width: width,
+      height: height,
+      particleRadius: particleRadius,
+      rangeOfForce: rangeOfForce,
+      forceScalar: forceScalar,
+      frictionCoefficient: frictionCoefficient,
+    });
     await sleep(1);
   }
 
   console.log("The end");
 }
 
-function draw(canvas, width, height, particles) {
+function draw(canvas, width, height, particles, particleRadius) {
   if (canvas.getContext) {
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "rgb(200, 0, 0)";
@@ -81,7 +83,7 @@ function draw(canvas, width, height, particles) {
 
     particles.forEach((p) => {
       ctx.beginPath();
-      ctx.arc(p.position.x, p.position.y, 4, startAngle, endAngle);
+      ctx.arc(p.position.x, p.position.y, particleRadius, startAngle, endAngle);
       ctx.fill();
     });
   }
@@ -157,19 +159,23 @@ function closestParticles(particle, particles, range) {
   });
 }
 
-function updateVelocities(
+function updateVelocities({
   particles,
   width,
   height,
+  particleRadius,
   rangeOfForce,
   forceScalar,
-  frictionCoefficient
-) {
+  frictionCoefficient,
+}) {
+  const minimumDistanceSquared = (particleRadius * 2) ** 2;
+
   particles.forEach((p) => {
     closestParticles(p, particles, rangeOfForce).forEach((q) => {
       if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
         diff = subtractVector(p.position, q.position);
-        force = Math.min(forceScalar / lengthSquared(diff), 3);
+        force =
+          forceScalar / Math.max(lengthSquared(diff), minimumDistanceSquared);
         change = scaleVector(unitVector(diff), force);
         p.velocity = addVector(p.velocity, change);
       }
