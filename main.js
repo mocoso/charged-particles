@@ -43,12 +43,7 @@ async function start({
   for (var i = 0; i < 10000; i++) {
     if (
       i > 100 &&
-      hasStopped(
-        particles.filter((p) => {
-          !isOutOfBounds(p, width, height, rangeOfForce);
-        }),
-        0.2
-      )
+      hasNearlyStopped(particles, 0.25, width, height, rangeOfForce)
     ) {
       console.log("Has stopped");
       break;
@@ -160,10 +155,14 @@ function isOutOfVerticalBounds(particle, height, rangeOfForce) {
   );
 }
 
-function hasStopped(particles, maxSpeed) {
+function hasNearlyStopped(particles, maxSpeed, width, height, rangeOfForce) {
   maxSpeedSquared = maxSpeed * maxSpeed;
 
-  return particles.every((p) => {
+  const inBounds = particles.filter((p) => {
+    return !isOutOfBounds(p, width, height, rangeOfForce);
+  });
+
+  return inBounds.every((p) => {
     return lengthSquared(p.velocity) < maxSpeedSquared;
   });
 }
