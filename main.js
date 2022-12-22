@@ -1,8 +1,6 @@
-const height = 600;
-const width = 600;
 const boundary = 30;
 
-function createParticles(n) {
+function createParticles(n, width, height) {
   const particles = [];
 
   for (var i = 0; i < n; i++) {
@@ -22,17 +20,17 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function start() {
-  const particles = createParticles(4000);
+async function start({ width, height, numberOfParticles }) {
+  const particles = createParticles(numberOfParticles, width, height);
 
   for (var i = 0; i < 10000; i++) {
     if (i % 3 == 0) {
-      draw(particles);
+      draw(particles, width, height);
       if (
         i > 100 &&
         hasStopped(
           particles.filter((p) => {
-            !isOutOfBounds(p);
+            !isOutOfBounds(p, width, height);
           }),
           0.2
         )
@@ -42,14 +40,14 @@ async function start() {
       }
     }
     updatePositions(particles);
-    updateVelocities(particles);
+    updateVelocities(particles, width, height);
     await sleep(1);
   }
 
   console.log("The end");
 }
 
-function draw(particles) {
+function draw(particles, width, height) {
   const canvas = document.getElementById("canvas");
 
   if (canvas.getContext) {
@@ -98,17 +96,20 @@ function updatePositions(particles) {
   });
 }
 
-function isOutOfBounds(particle) {
-  return isOutOfHorizontalBounds(particle) || isOutOfVerticalBounds(particle);
+function isOutOfBounds(particle, width, height) {
+  return (
+    isOutOfHorizontalBounds(particle, width) ||
+    isOutOfVerticalBounds(particle, height)
+  );
 }
 
-function isOutOfHorizontalBounds(particle) {
+function isOutOfHorizontalBounds(particle, width) {
   return (
     particle.position.x < -boundary || particle.position.x > width + boundary
   );
 }
 
-function isOutOfVerticalBounds(particle) {
+function isOutOfVerticalBounds(particle, height) {
   return (
     particle.position.y < -boundary || particle.position.y > height + boundary
   );
@@ -131,7 +132,7 @@ function closestParticles(particle, particles, range) {
   });
 }
 
-function updateVelocities(particles) {
+function updateVelocities(particles, width, height) {
   scalar = 32;
   friction = 0.1;
 
@@ -145,11 +146,11 @@ function updateVelocities(particles) {
       }
     });
 
-    if (isOutOfHorizontalBounds(p)) {
+    if (isOutOfHorizontalBounds(p, width)) {
       p.velocity.x = Math.random() - 0.5;
     }
 
-    if (isOutOfVerticalBounds(p)) {
+    if (isOutOfVerticalBounds(p, height)) {
       p.velocity.y = Math.random() - 0.5;
     }
 
