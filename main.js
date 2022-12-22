@@ -41,20 +41,18 @@ async function start({
   );
 
   for (var i = 0; i < 10000; i++) {
-    if (i % 3 == 0) {
-      draw(canvas, width, height, particles, particleRadius);
-      if (
-        i > 100 &&
-        hasStopped(
-          particles.filter((p) => {
-            !isOutOfBounds(p, width, height, rangeOfForce);
-          }),
-          0.2
-        )
-      ) {
-        console.log("Has stopped");
-        break;
-      }
+    draw(canvas, width, height, particles, particleRadius);
+    if (
+      i > 100 &&
+      hasStopped(
+        particles.filter((p) => {
+          !isOutOfBounds(p, width, height, rangeOfForce);
+        }),
+        0.2
+      )
+    ) {
+      console.log("Has stopped");
+      break;
     }
     updatePositions(particles);
     updateVelocities({
