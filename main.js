@@ -24,6 +24,8 @@ async function start({
   height,
   boundaryWidth,
   numberOfParticles,
+  frictionCoefficient,
+  forceScalar,
 }) {
   const particles = createParticles(
     numberOfParticles,
@@ -49,7 +51,14 @@ async function start({
       }
     }
     updatePositions(particles);
-    updateVelocities(particles, width, height, boundaryWidth);
+    updateVelocities(
+      particles,
+      width,
+      height,
+      boundaryWidth,
+      forceScalar,
+      frictionCoefficient
+    );
     await sleep(1);
   }
 
@@ -143,15 +152,19 @@ function closestParticles(particle, particles, range) {
   });
 }
 
-function updateVelocities(particles, width, height, boundaryWidth) {
-  scalar = 32;
-  friction = 0.1;
-
+function updateVelocities(
+  particles,
+  width,
+  height,
+  boundaryWidth,
+  forceScalar,
+  frictionCoefficient
+) {
   particles.forEach((p) => {
     closestParticles(p, particles, 30).forEach((q) => {
       if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
         diff = subtractVector(p.position, q.position);
-        force = Math.min(scalar / lengthSquared(diff), 3);
+        force = Math.min(forceScalar / lengthSquared(diff), 3);
         change = scaleVector(unitVector(diff), force);
         p.velocity = addVector(p.velocity, change);
       }
@@ -165,6 +178,6 @@ function updateVelocities(particles, width, height, boundaryWidth) {
       p.velocity.y = Math.random() - 0.5;
     }
 
-    p.velocity = scaleVector(p.velocity, 1 - friction);
+    p.velocity = scaleVector(p.velocity, 1 - frictionCoefficient);
   });
 }
