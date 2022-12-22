@@ -1,11 +1,11 @@
-function createParticles(n, width, height, boundaryWidth) {
+function createParticles(n, width, height, rangeOfForce) {
   const particles = [];
 
   for (var i = 0; i < n; i++) {
     particles.push({
       position: {
-        x: Math.random() * (width + boundaryWidth * 2) - boundaryWidth,
-        y: Math.random() * (height + boundaryWidth * 2) - boundaryWidth,
+        x: Math.random() * (width + rangeOfForce * 2) - rangeOfForce,
+        y: Math.random() * (height + rangeOfForce * 2) - rangeOfForce,
       },
       velocity: { x: 0, y: 0 },
     });
@@ -18,20 +18,25 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function calculateRangeOfForce(numberOfParticles, width, height) {
+  return Math.sqrt((width * height) / numberOfParticles) * Math.PI;
+}
+
 async function start({
   canvas,
-  width,
-  height,
-  boundaryWidth,
   numberOfParticles,
   frictionCoefficient,
   forceScalar,
 }) {
+  const width = canvas.width;
+  const height = canvas.height;
+  const rangeOfForce = calculateRangeOfForce(numberOfParticles, width, height);
+
   const particles = createParticles(
     numberOfParticles,
     width,
     height,
-    boundaryWidth
+    rangeOfForce
   );
 
   for (var i = 0; i < 10000; i++) {
@@ -41,7 +46,7 @@ async function start({
         i > 100 &&
         hasStopped(
           particles.filter((p) => {
-            !isOutOfBounds(p, width, height, boundaryWidth);
+            !isOutOfBounds(p, width, height, rangeOfForce);
           }),
           0.2
         )
@@ -55,7 +60,7 @@ async function start({
       particles,
       width,
       height,
-      boundaryWidth,
+      rangeOfForce,
       forceScalar,
       frictionCoefficient
     );
@@ -112,24 +117,24 @@ function updatePositions(particles) {
   });
 }
 
-function isOutOfBounds(particle, width, height, boundaryWidth) {
+function isOutOfBounds(particle, width, height, rangeOfForce) {
   return (
-    isOutOfHorizontalBounds(particle, width, boundaryWidth) ||
-    isOutOfVerticalBounds(particle, height, boundaryWidth)
+    isOutOfHorizontalBounds(particle, width, rangeOfForce) ||
+    isOutOfVerticalBounds(particle, height, rangeOfForce)
   );
 }
 
-function isOutOfHorizontalBounds(particle, width, boundaryWidth) {
+function isOutOfHorizontalBounds(particle, width, rangeOfForce) {
   return (
-    particle.position.x < -boundaryWidth ||
-    particle.position.x > width + boundaryWidth
+    particle.position.x < -rangeOfForce ||
+    particle.position.x > width + rangeOfForce
   );
 }
 
-function isOutOfVerticalBounds(particle, height, boundaryWidth) {
+function isOutOfVerticalBounds(particle, height, rangeOfForce) {
   return (
-    particle.position.y < -boundaryWidth ||
-    particle.position.y > height + boundaryWidth
+    particle.position.y < -rangeOfForce ||
+    particle.position.y > height + rangeOfForce
   );
 }
 
@@ -156,12 +161,12 @@ function updateVelocities(
   particles,
   width,
   height,
-  boundaryWidth,
+  rangeOfForce,
   forceScalar,
   frictionCoefficient
 ) {
   particles.forEach((p) => {
-    closestParticles(p, particles, 30).forEach((q) => {
+    closestParticles(p, particles, rangeOfForce).forEach((q) => {
       if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
         diff = subtractVector(p.position, q.position);
         force = Math.min(forceScalar / lengthSquared(diff), 3);
@@ -170,11 +175,11 @@ function updateVelocities(
       }
     });
 
-    if (isOutOfHorizontalBounds(p, width, boundaryWidth)) {
+    if (isOutOfHorizontalBounds(p, width, rangeOfForce)) {
       p.velocity.x = Math.random() - 0.5;
     }
 
-    if (isOutOfVerticalBounds(p, height, boundaryWidth)) {
+    if (isOutOfVerticalBounds(p, height, rangeOfForce)) {
       p.velocity.y = Math.random() - 0.5;
     }
 
