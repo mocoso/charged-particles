@@ -1,13 +1,11 @@
-const boundary = 30;
-
-function createParticles(n, width, height) {
+function createParticles(n, width, height, boundaryWidth) {
   const particles = [];
 
   for (var i = 0; i < n; i++) {
     particles.push({
       position: {
-        x: Math.random() * (width + boundary * 2) - boundary,
-        y: Math.random() * (height + boundary * 2) - boundary,
+        x: Math.random() * (width + boundaryWidth * 2) - boundaryWidth,
+        y: Math.random() * (height + boundaryWidth * 2) - boundaryWidth,
       },
       velocity: { x: 0, y: 0 },
     });
@@ -20,17 +18,28 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function start({ width, height, numberOfParticles }) {
-  const particles = createParticles(numberOfParticles, width, height);
+async function start({
+  canvas,
+  width,
+  height,
+  boundaryWidth,
+  numberOfParticles,
+}) {
+  const particles = createParticles(
+    numberOfParticles,
+    width,
+    height,
+    boundaryWidth
+  );
 
   for (var i = 0; i < 10000; i++) {
     if (i % 3 == 0) {
-      draw(particles, width, height);
+      draw(canvas, width, height, particles);
       if (
         i > 100 &&
         hasStopped(
           particles.filter((p) => {
-            !isOutOfBounds(p, width, height);
+            !isOutOfBounds(p, width, height, boundaryWidth);
           }),
           0.2
         )
@@ -40,16 +49,14 @@ async function start({ width, height, numberOfParticles }) {
       }
     }
     updatePositions(particles);
-    updateVelocities(particles, width, height);
+    updateVelocities(particles, width, height, boundaryWidth);
     await sleep(1);
   }
 
   console.log("The end");
 }
 
-function draw(particles, width, height) {
-  const canvas = document.getElementById("canvas");
-
+function draw(canvas, width, height, particles) {
   if (canvas.getContext) {
     const ctx = canvas.getContext("2d");
     ctx.fillStyle = "rgb(200, 0, 0)";
@@ -96,27 +103,30 @@ function updatePositions(particles) {
   });
 }
 
-function isOutOfBounds(particle, width, height) {
+function isOutOfBounds(particle, width, height, boundaryWidth) {
   return (
-    isOutOfHorizontalBounds(particle, width) ||
-    isOutOfVerticalBounds(particle, height)
+    isOutOfHorizontalBounds(particle, width, boundaryWidth) ||
+    isOutOfVerticalBounds(particle, height, boundaryWidth)
   );
 }
 
-function isOutOfHorizontalBounds(particle, width) {
+function isOutOfHorizontalBounds(particle, width, boundaryWidth) {
   return (
-    particle.position.x < -boundary || particle.position.x > width + boundary
+    particle.position.x < -boundaryWidth ||
+    particle.position.x > width + boundaryWidth
   );
 }
 
-function isOutOfVerticalBounds(particle, height) {
+function isOutOfVerticalBounds(particle, height, boundaryWidth) {
   return (
-    particle.position.y < -boundary || particle.position.y > height + boundary
+    particle.position.y < -boundaryWidth ||
+    particle.position.y > height + boundaryWidth
   );
 }
 
 function hasStopped(particles, maxSpeed) {
   maxSpeedSquared = maxSpeed * maxSpeed;
+
   return particles.every((p) => {
     return lengthSquared(p.velocity) < maxSpeedSquared;
   });
@@ -124,6 +134,7 @@ function hasStopped(particles, maxSpeed) {
 
 function closestParticles(particle, particles, range) {
   rangeSquared = range * range;
+
   return particles.filter((q) => {
     return (
       lengthSquared(subtractVector(particle.position, q.position)) <
@@ -132,7 +143,7 @@ function closestParticles(particle, particles, range) {
   });
 }
 
-function updateVelocities(particles, width, height) {
+function updateVelocities(particles, width, height, boundaryWidth) {
   scalar = 32;
   friction = 0.1;
 
@@ -146,11 +157,11 @@ function updateVelocities(particles, width, height) {
       }
     });
 
-    if (isOutOfHorizontalBounds(p, width)) {
+    if (isOutOfHorizontalBounds(p, width, boundaryWidth)) {
       p.velocity.x = Math.random() - 0.5;
     }
 
-    if (isOutOfVerticalBounds(p, height)) {
+    if (isOutOfVerticalBounds(p, height, boundaryWidth)) {
       p.velocity.y = Math.random() - 0.5;
     }
 
