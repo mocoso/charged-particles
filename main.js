@@ -41,7 +41,6 @@ async function start({
   );
 
   for (var i = 0; i < 10000; i++) {
-    draw(canvas, width, height, particles, particleRadius);
     if (
       i > 100 &&
       hasStopped(
@@ -54,8 +53,8 @@ async function start({
       console.log("Has stopped");
       break;
     }
-    updatePositions(particles);
-    updateVelocities({
+
+    tick({
       particles: particles,
       width: width,
       height: height,
@@ -64,10 +63,33 @@ async function start({
       forceScalar: forceScalar,
       frictionCoefficient: frictionCoefficient,
     });
+
     await sleep(1);
   }
 
   console.log("The end");
+}
+
+function tick({
+  particles: particles,
+  width: width,
+  height: height,
+  particleRadius: particleRadius,
+  rangeOfForce: rangeOfForce,
+  forceScalar: forceScalar,
+  frictionCoefficient: frictionCoefficient,
+}) {
+  draw(canvas, width, height, particles, particleRadius);
+  updatePositions(particles);
+  updateVelocities({
+    particles: particles,
+    width: width,
+    height: height,
+    particleRadius: particleRadius,
+    rangeOfForce: rangeOfForce,
+    forceScalar: forceScalar,
+    frictionCoefficient: frictionCoefficient,
+  });
 }
 
 function draw(canvas, width, height, particles, particleRadius) {
