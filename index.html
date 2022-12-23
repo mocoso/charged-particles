@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link href="style.css" rel="stylesheet">
     <script src="main.js"></script>
   </head>
   <body>
@@ -8,30 +9,30 @@
 
     <p>Crude modelling of charged particles to irregularly fill a space.</p>
 
-    <canvas id="canvas" height="450px" width="600px"></canvas>
+    <canvas id="canvas" height="400px" width="600px"></canvas>
 
     <h2>Settings:</h2>
 
     <form method="GET" action="">
-      <div>
+      <div class="input">
         <input type="range" id="number-of-particles" name="number-of-particles"
               min="50" max="5000">
         <label for="number-of-particles">Number of particles</label>
       </div>
 
-      <div>
+      <div class="input">
         <input type="range" id="friction" name="friction"
               min="-2.5" max="-0.1" step="0.1">
         <label for="friction">Friction</label>
       </div>
 
-      <div>
+      <div class="input">
         <input type="range" id="force-scalar" name="force-scalar"
               min="2" max="100">
         <label for="force-scalar">Force</label>
       </div>
 
-      <input type="Submit" value="Run" />
+      <input type="submit" value="Run" />
     </form>
 
     <h2>Source code</h3>
@@ -41,7 +42,7 @@
 
       const params = new URLSearchParams(window.location.search);
 
-      const numberOfParticles = params.get("number-of-particles") || 4000
+      const numberOfParticles = params.get("number-of-particles") || 2000
       document.getElementById("number-of-particles").value = numberOfParticles;
 
       const friction = params.get("friction") || -0.9
