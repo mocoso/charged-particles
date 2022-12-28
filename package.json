@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "build": "esbuild main.js --outfile=public/main.js",
+    "serve": "esbuild main.js --outfile=public/main.js --servedir=public"
+  },
+  "devDependencies": {
+    "esbuild": "^0.16.11"
+  }
+}
