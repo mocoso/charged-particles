@@ -110,11 +110,10 @@ ChargedParticles = (() => {
     forceScalar: forceScalar,
     frictionCoefficient: frictionCoefficient,
   }) {
-    draw(canvas, width, height, particles, particleRadius);
+    draw(canvas, width, height, particles, particleRadius, greyScalars);
     updatePositions(particles);
     updateVelocities({
       particles: particles,
-      greyScalars: greyScalars,
       width: width,
       height: height,
       particleRadius: particleRadius,
@@ -124,21 +123,21 @@ ChargedParticles = (() => {
     });
   }
 
-  function draw(canvas, width, height, particles, particleRadius) {
+  function draw(canvas, width, height, particles, particleRadius, greyScalars) {
     if (canvas.getContext) {
       const ctx = canvas.getContext("2d");
       ctx.fillStyle = "rgb(200, 0, 0)";
       const startAngle = 0;
       const endAngle = Math.PI * 2;
-
       ctx.clearRect(0, 0, width, height);
 
       particles.forEach((p) => {
+        const pngScalar = greyScalar(greyScalars, p.position, width, height);
         ctx.beginPath();
         ctx.arc(
           p.position.x,
           p.position.y,
-          particleRadius,
+          particleRadius * pngScalar,
           startAngle,
           endAngle
         );
@@ -232,7 +231,8 @@ ChargedParticles = (() => {
       for (let y = 0; y < height; y++) {
         greyScalars[x] ||= [];
         greyScalars[x][y] =
-          4 ** ((greyScaleForPixel(png, { x: x, y: y }) - 128) / 64);
+          Math.sqrt((-greyScaleForPixel(png, { x: x, y: y }) + 256) / 256) *
+          1.5;
       }
     }
     return greyScalars;
@@ -250,7 +250,6 @@ ChargedParticles = (() => {
 
   function updateVelocities({
     particles,
-    greyScalars,
     width,
     height,
     particleRadius,
@@ -263,10 +262,8 @@ ChargedParticles = (() => {
       closestParticles(p, particles, rangeOfForce).forEach((q) => {
         if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
           diff = subtractVector(p.position, q.position);
-          pngScalar = greyScalar(greyScalars, q.position, width, height);
           force =
-            (pngScalar * forceScalar) /
-            Math.max(lengthSquared(diff), minimumDistanceSquared);
+            forceScalar / Math.max(lengthSquared(diff), minimumDistanceSquared);
           change = scaleVector(unitVector(diff), force);
           p.velocity = addVector(p.velocity, change);
         }

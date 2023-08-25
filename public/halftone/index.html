@@ -21,7 +21,7 @@
 
       <div class="input">
         <input type="range" id="number-of-particles" name="number-of-particles"
-              min="100" max="10000" step="100">
+              min="1000" max="6000" step="100">
         <label for="number-of-particles">Number of particles</label>
       </div>
 
@@ -47,7 +47,7 @@
 
       const params = new URLSearchParams(window.location.search);
 
-      const numberOfParticles = params.get("number-of-particles") || 7500
+      const numberOfParticles = params.get("number-of-particles") || 4000
       document.getElementById("number-of-particles").value = numberOfParticles;
 
       const friction = params.get("friction") || -0.2
