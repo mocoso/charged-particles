@@ -230,9 +230,35 @@ ChargedParticles = (() => {
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
         greyScalars[x] ||= [];
+        sampleCoords = [
+          [x - 1, y - 1],
+          [x, y - 1],
+          [x + 1, y - 1],
+          [x - 1, y],
+          [x, y],
+          [x + 1, y],
+          [x - 1, y + 1],
+          [x, y + 1],
+          [x + 1, y + 1],
+        ].filter(
+          (coords) =>
+            coords[0] >= 0 &&
+            coords[0] <= png.width &&
+            coords[1] >= 0 &&
+            coords[1] <= png.height
+        );
+
         greyScalars[x][y] =
-          Math.sqrt((-greyScaleForPixel(png, { x: x, y: y }) + 256) / 256) *
-          1.5;
+          sampleCoords
+            .map(
+              (coords) =>
+                Math.sqrt(
+                  (-greyScaleForPixel(png, { x: coords[0], y: coords[1] }) +
+                    256) /
+                    256
+                ) * 1.5
+            )
+            .reduce((a, b) => a + b, 0) / sampleCoords.length;
       }
     }
     return greyScalars;
