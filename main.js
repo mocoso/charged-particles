@@ -157,7 +157,7 @@ ChargedParticles = (() => {
 
     await asyncForEach(layers, async (layer) => {
       updatePositions(layer.particles);
-      updateVelocities({
+      await updateVelocities({
         particles: layer.particles,
         width: width,
         height: height,
@@ -166,7 +166,6 @@ ChargedParticles = (() => {
         forceScalar: forceScalar,
         frictionCoefficient: frictionCoefficient,
       });
-      await sleep(1);
     });
   }
 
@@ -351,7 +350,7 @@ ChargedParticles = (() => {
     }
   }
 
-  function updateVelocities({
+  async function updateVelocities({
     particles,
     width,
     height,
@@ -361,7 +360,7 @@ ChargedParticles = (() => {
     frictionCoefficient,
   }) {
     const minimumDistanceSquared = (particleRadius * 2) ** 2;
-    particles.forEach((p) => {
+    await asyncForEach(particles, async (p, index) => {
       closestParticles(p, particles, rangeOfForce).forEach((q) => {
         if (!(p.position.x == q.position.x && p.position.y == q.position.y)) {
           diff = subtractVector(p.position, q.position);
@@ -381,6 +380,10 @@ ChargedParticles = (() => {
       }
 
       p.velocity = scaleVector(p.velocity, 1 - frictionCoefficient);
+
+      if (index % 250 === 0) {
+        await sleep(10);
+      }
     });
   }
 
