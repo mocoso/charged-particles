@@ -98,7 +98,7 @@ ChargedParticles = (() => {
         break;
       }
 
-      tick({
+      await tick({
         layers: layers,
         width: width,
         height: height,
@@ -107,7 +107,6 @@ ChargedParticles = (() => {
         forceScalar: forceScalar,
         frictionCoefficient: frictionCoefficient,
       });
-      await sleep(1);
     }
 
     console.log("The end");
@@ -133,7 +132,7 @@ ChargedParticles = (() => {
     });
   }
 
-  function tick({
+  async function tick({
     layers: layers,
     width: width,
     height: height,
@@ -156,7 +155,7 @@ ChargedParticles = (() => {
       );
     });
 
-    layers.forEach((layer) => {
+    await asyncForEach(layers, async (layer) => {
       updatePositions(layer.particles);
       updateVelocities({
         particles: layer.particles,
@@ -167,6 +166,7 @@ ChargedParticles = (() => {
         forceScalar: forceScalar,
         frictionCoefficient: frictionCoefficient,
       });
+      await sleep(1);
     });
   }
 
@@ -210,6 +210,12 @@ ChargedParticles = (() => {
         );
         ctx.fill();
       });
+    }
+  }
+
+  async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+      await callback(array[index], index, array);
     }
   }
 
