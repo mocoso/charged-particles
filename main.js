@@ -42,30 +42,64 @@ ChargedParticles = (() => {
       height
     );
 
-    const particles = createParticles(
-      numberOfParticles,
-      width,
-      height,
-      rangeOfForce
-    );
+    let layers;
 
-    const greyScalars =
-      pngSrc == undefined
-        ? undefined
-        : await greyScalarsForPngSource(pngSrc, width, height);
+    if (pngSrc == undefined) {
+      // TO BE DONE
+      layers = [
+        {
+          particles: createParticles(
+            numberOfParticles,
+            width,
+            height,
+            rangeOfForce
+          ),
+          colour: "#ff0000",
+        },
+      ];
+    } else {
+      const colours = ["#00ffff", "#ff00ff", "#ffff00"];
+
+      layers = await Promise.all(
+        colours.map(async (colour, colourIndex) => {
+          return {
+            particles: createParticles(
+              numberOfParticles,
+              width,
+              height,
+              rangeOfForce
+            ),
+            colour: colour,
+            colourScalars: await colourScalarsForPngSource(
+              pngSrc,
+              width,
+              height,
+              colourIndex
+            ),
+          };
+        })
+      );
+    }
 
     for (var i = 0; i < 1000; i++) {
       if (
-        i > 100 &&
-        hasNearlyStopped(particles, 0.25, width, height, rangeOfForce)
+        layers.every((layer) => {
+          i > 100 &&
+            hasNearlyStopped(
+              layer.particles,
+              0.25,
+              width,
+              height,
+              rangeOfForce
+            );
+        })
       ) {
         console.log("Has stopped");
         break;
       }
 
       tick({
-        particles: particles,
-        greyScalars: greyScalars,
+        layers: layers,
         width: width,
         height: height,
         particleRadius: particleRadius,
@@ -73,14 +107,13 @@ ChargedParticles = (() => {
         forceScalar: forceScalar,
         frictionCoefficient: frictionCoefficient,
       });
-
       await sleep(1);
     }
 
     console.log("The end");
   };
 
-  async function greyScalarsForPngSource(pngSrc, width, height) {
+  async function colourScalarsForPngSource(pngSrc, width, height, colourIndex) {
     return new Promise(function (resolve, _) {
       const xhr = new XMLHttpRequest();
       xhr.open("GET", pngSrc, true);
@@ -93,7 +126,7 @@ ChargedParticles = (() => {
             if (err) throw err;
           });
 
-          resolve(greyScalarsForPng(png, width, height));
+          resolve(colourScalarsForPng(png, width, height, colourIndex));
         }
       };
       xhr.send();
@@ -101,8 +134,7 @@ ChargedParticles = (() => {
   }
 
   function tick({
-    particles: particles,
-    greyScalars: greyScalars,
+    layers: layers,
     width: width,
     height: height,
     particleRadius: particleRadius,
@@ -110,29 +142,64 @@ ChargedParticles = (() => {
     forceScalar: forceScalar,
     frictionCoefficient: frictionCoefficient,
   }) {
-    draw(canvas, width, height, particles, particleRadius, greyScalars);
-    updatePositions(particles);
-    updateVelocities({
-      particles: particles,
-      width: width,
-      height: height,
-      particleRadius: particleRadius,
-      rangeOfForce: rangeOfForce,
-      forceScalar: forceScalar,
-      frictionCoefficient: frictionCoefficient,
+    clearCanvas(canvas, width, height);
+
+    layers.forEach((layer) => {
+      draw(
+        canvas,
+        width,
+        height,
+        layer.particles,
+        particleRadius,
+        layer.colourScalars,
+        layer.colour
+      );
+    });
+
+    layers.forEach((layer) => {
+      updatePositions(layer.particles);
+      updateVelocities({
+        particles: layer.particles,
+        width: width,
+        height: height,
+        particleRadius: particleRadius,
+        rangeOfForce: rangeOfForce,
+        forceScalar: forceScalar,
+        frictionCoefficient: frictionCoefficient,
+      });
     });
   }
 
-  function draw(canvas, width, height, particles, particleRadius, greyScalars) {
+  function clearCanvas(canvas, width, height) {
     if (canvas.getContext) {
       const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "rgb(200, 0, 0)";
+      ctx.clearRect(0, 0, width, height);
+    }
+  }
+
+  function draw(
+    canvas,
+    width,
+    height,
+    particles,
+    particleRadius,
+    colourScalars,
+    colour
+  ) {
+    if (canvas.getContext) {
+      const ctx = canvas.getContext("2d");
+      ctx.globalCompositeOperation = "darken";
+      ctx.fillStyle = colour;
       const startAngle = 0;
       const endAngle = Math.PI * 2;
-      ctx.clearRect(0, 0, width, height);
 
       particles.forEach((p) => {
-        const pngScalar = greyScalar(greyScalars, p.position, width, height);
+        const pngScalar = colourScalar(
+          colourScalars,
+          p.position,
+          width,
+          height
+        );
         ctx.beginPath();
         ctx.arc(
           p.position.x,
@@ -220,16 +287,16 @@ ChargedParticles = (() => {
     });
   }
 
-  function greyScaleForPixel(png, point) {
+  function colourScaleForPixel(png, point, colourIndex) {
     const index = (Math.round(point.x) + Math.round(point.y) * png.width) << 2;
-    return (png.data[index] + png.data[index + 1] + png.data[index + 2]) / 3;
+    return png.data[index + colourIndex];
   }
 
-  function greyScalarsForPng(png, width, height) {
-    const greyScalars = [];
+  function colourScalarsForPng(png, width, height, colourIndex) {
+    const colourScalars = [];
     for (let x = 0; x < width; x++) {
       for (let y = 0; y < height; y++) {
-        greyScalars[x] ||= [];
+        colourScalars[x] ||= [];
         sampleCoords = [
           [x - 1, y - 1],
           [x, y - 1],
@@ -248,12 +315,16 @@ ChargedParticles = (() => {
             coords[1] <= png.height
         );
 
-        greyScalars[x][y] =
+        colourScalars[x][y] =
           sampleCoords
             .map(
               (coords) =>
                 Math.sqrt(
-                  (-greyScaleForPixel(png, { x: coords[0], y: coords[1] }) +
+                  (-colourScaleForPixel(
+                    png,
+                    { x: coords[0], y: coords[1] },
+                    colourIndex
+                  ) +
                     256) /
                     256
                 ) * 1.5
@@ -261,14 +332,14 @@ ChargedParticles = (() => {
             .reduce((a, b) => a + b, 0) / sampleCoords.length;
       }
     }
-    return greyScalars;
+    return colourScalars;
   }
 
-  function greyScalar(greyScalars, position, width, height) {
-    if (greyScalars == undefined) {
+  function colourScalar(colourScalars, position, width, height) {
+    if (colourScalars == undefined) {
       return 1;
     } else {
-      return greyScalars[
+      return colourScalars[
         Math.max(0, Math.min(width - 1, Math.round(position.x)))
       ][Math.max(0, Math.min(height - 1, Math.round(position.y)))];
     }
