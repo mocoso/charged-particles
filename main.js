@@ -29,13 +29,21 @@ ChargedParticles = (() => {
   const start = async function start({
     canvas,
     pngSrc,
-    numberOfParticles,
+    densityOfParticles,
     particleRadius,
     frictionCoefficient,
     forceScalar,
   }) {
     const width = canvas.width;
     const height = canvas.height;
+
+    const numberOfParticles = Math.round(
+      (densityOfParticles * width * height) /
+        (particleRadius * particleRadius * Math.PI)
+    );
+
+    console.log(numberOfParticles);
+
     const rangeOfForce = calculateRangeOfForce(
       numberOfParticles,
       width,

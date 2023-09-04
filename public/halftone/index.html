@@ -20,9 +20,15 @@
       </div>
 
       <div class="input">
-        <input type="range" id="number-of-particles" name="number-of-particles"
-              min="1000" max="6000" step="100">
-        <label for="number-of-particles">Number of particles</label>
+        <input type="range" id="particle-radius" name="particle-radius"
+              min="1" max="25" step="0.2">
+        <label for="particle-radius">Radius of particles</label>
+      </div>
+
+      <div class="input">
+        <input type="range" id="density-of-particles" name="density-of-particles"
+              min="0.1" max="1.5" step="0.05">
+        <label for="density-of-particles">Density of particles</label>
       </div>
 
       <div class="input">
@@ -47,8 +53,11 @@
 
       const params = new URLSearchParams(window.location.search);
 
-      const numberOfParticles = params.get("number-of-particles") || 4000
-      document.getElementById("number-of-particles").value = numberOfParticles;
+      const densityOfParticles = params.get("density-of-particles") || 0.5
+      document.getElementById("density-of-particles").value = densityOfParticles;
+
+      const particleRadius = params.get("particle-radius") || 5
+      document.getElementById("particle-radius").value = particleRadius;
 
       const friction = params.get("friction") || -0.7
       document.getElementById("friction").value = friction;
@@ -59,8 +68,8 @@
       ChargedParticles.start({
         canvas: canvas,
         pngSrc: "/simon.png",
-        numberOfParticles: numberOfParticles,
-        particleRadius: 3.5,
+        densityOfParticles: densityOfParticles,
+        particleRadius: particleRadius,
         frictionCoefficient: 10 ** friction,
         forceScalar: forceScalar,
       });
