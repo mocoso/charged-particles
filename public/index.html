@@ -51,13 +51,13 @@
       const densityOfParticles = params.get("density-of-particles") || 0.5
       document.getElementById("density-of-particles").value = densityOfParticles;
 
-      const particleRadius = params.get("particle-radius") || 5
+      const particleRadius = params.get("particle-radius") || 10
       document.getElementById("particle-radius").value = particleRadius;
 
-      const friction = params.get("friction") || -0.7
+      const friction = params.get("friction") || -1.5
       document.getElementById("friction").value = friction;
 
-      const forceScalar = params.get("force-scalar") || 9
+      const forceScalar = params.get("force-scalar") || 40
       document.getElementById("force-scalar").value = forceScalar;
 
       ChargedParticles.start({
