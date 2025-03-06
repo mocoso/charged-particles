@@ -1,0 +1,5 @@
+image: node:22
+command: npm ci && npm run build
+public: public
+domains:
+  - charged-particles.mocoso.co.uk
